@@ -26,9 +26,11 @@ import org.bouncycastle.cert.jcajce.JcaAttributeCertificateIssuer;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import java.io.FileOutputStream;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 
 public class TestApp {
 	public static void main(String[] args) {
@@ -80,7 +82,17 @@ public class TestApp {
 
 			GeneralName roleName = new GeneralName(GeneralName.uniformResourceIdentifier, "id://DAU123456789");
 
+
 			acBldr.addAttribute(X509AttributeIdentifiers.id_at_role, new RoleSyntax(roleName));
+
+			// // Trusted Computing Group (2.23.133)
+			// TPMManufacturer            = []int{2, 23, 133, 2, 1}
+			// the value is actually an URI reference (Not the simple genericName value)
+			// https://github.com/nsacyber/HIRS/tree/master
+			// https://github.com/nsacyber/HIRS/blob/master/HIRS_Utils/src/main/java/hirs/data/persist/certificate/attributes/URIReference.java
+			// TODO: use that..  vs a string like the GeneralName above
+			 ASN1ObjectIdentifier oidTcgPlatformConfigURI = new ASN1ObjectIdentifier("2.23.133.5.1.3");
+			 acBldr.addAttribute(oidTcgPlatformConfigURI, new RoleSyntax(roleName));
 
 			// finally create the AC
 			X509AttributeCertificateHolder att = acBldr
@@ -92,6 +104,11 @@ public class TestApp {
 			pemWriter.writeObject(att);
 			pemWriter.flush();
 			pemWriter.close();
+
+			try (FileOutputStream fos = new FileOutputStream("platform_cert.der")) {
+				fos.write(att.getEncoded());
+				fos.close();
+			 }	
 
 			//
 			// starting here, we parse the newly generated AC

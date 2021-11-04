@@ -56,9 +56,15 @@ From there, use it in the grpc Remote Attestation flows once go supports those f
 - [TPM Remote Attestation protocol using go-tpm and gRPC (pull)](https://github.com/salrashid123/go_tpm_remote_attestation/tree/pull)
 
 
+Also see
+[Host Integrity at Runtime and Start-up (HIRS)](https://github.com/nsacyber/HIRS)
+
+which does infact use bouncycastle and constructs the AttributeCertificate's parameters here for a [PlatformCredential](https://github.com/nsacyber/HIRS/blob/master/HIRS_Utils/src/main/java/hirs/data/persist/certificate/PlatformCredential.java)
+
 
 ### Reference
 
 - [CA ScratchPad](https://github.com/salrashid123/ca_scratchpad)
 - [TCG EK Credential Profile](https://www.trustedcomputinggroup.org/wp-content/uploads/Credential_Profile_EK_V2.0_R14_published.pdf)
 
+---

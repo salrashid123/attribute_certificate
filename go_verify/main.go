@@ -7,11 +7,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	//"github.com/google/go-attestation/attributecert"
 )
 
 const (
 	caCertFile = "../CA_crt.pem"
-	certFile   = "../tpm_reference_platform_cert.pem"
+	certFile   = "../platform_cert.pem"
 )
 
 func main() {
@@ -37,13 +38,29 @@ func main() {
 	}
 
 	fmt.Printf("CA Cert SubjectKeyId: %s\n", base64.RawStdEncoding.EncodeToString(cacert.SubjectKeyId))
-
-	// read attribute certificate
 	certPEM, err := ioutil.ReadFile(certFile)
 	if err != nil {
 		fmt.Println("Failed to decode PEM data.")
 		os.Exit(1)
 	}
+
+	// read attribute certificate using
+	// "github.com/google/go-attestation/attributecert"
+	//   requires DER format
+	// attributecert, err := attributecert.ParseAttributeCertificate(certDER)
+	// if err != nil {
+	// 	fmt.Println("failed to parse %s: %v", certFile, err)
+	// 	os.Exit(1)
+	// }
+
+	// err = attributecert.CheckSignatureFrom(cacert)
+	// if err != nil {
+	// 	fmt.Println("failed to verify signature on %s: %v", certFile, err)
+	// }
+	// fmt.Println("Cert Verified")
+
+	// read attribute certificate using crypto/509
+
 	block, _ = pem.Decode(certPEM)
 	if block == nil {
 		fmt.Println("Failed to decode PEM data.")
