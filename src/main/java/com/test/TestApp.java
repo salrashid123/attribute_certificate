@@ -2,6 +2,7 @@ package com.test;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
@@ -14,9 +15,12 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Date;
 
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.ASN1Integer;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x509.Attribute;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.RoleSyntax;
 import org.bouncycastle.asn1.x509.X509AttributeIdentifiers;
 import org.bouncycastle.cert.AttributeCertificateHolder;
 import org.bouncycastle.cert.AttributeCertificateIssuer;
@@ -26,11 +30,9 @@ import org.bouncycastle.cert.jcajce.JcaAttributeCertificateIssuer;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
-import java.io.FileOutputStream;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 
 public class TestApp {
 	public static void main(String[] args) {
@@ -80,19 +82,41 @@ public class TestApp {
 
 			// the actual attributes
 
-			GeneralName roleName = new GeneralName(GeneralName.uniformResourceIdentifier, "id://DAU123456789");
-
-
-			acBldr.addAttribute(X509AttributeIdentifiers.id_at_role, new RoleSyntax(roleName));
+			// GeneralName roleName = new GeneralName(GeneralName.uniformResourceIdentifier,
+			// "id://DAU123456789");
+			// acBldr.addAttribute(X509AttributeIdentifiers.id_at_role, new
+			// RoleSyntax(roleName));
 
 			// // Trusted Computing Group (2.23.133)
-			// TPMManufacturer            = []int{2, 23, 133, 2, 1}
-			// the value is actually an URI reference (Not the simple genericName value)
+			// SEQUENCE :
+			// Revision 19 39 13 August 2019
+			// TCG PUBLIC REVIEW
+			// 1371 OBJECT IDENTIFIER : [2.23.133.2.23]
+			// 1372 SET :
+			// 1373 SEQUENCE :
+			// 1374 INTEGER : 1
+			// 1375 INTEGER : 1
+			// 1376 INTEGER : 11
 			// https://github.com/nsacyber/HIRS/tree/master
-			// https://github.com/nsacyber/HIRS/blob/master/HIRS_Utils/src/main/java/hirs/data/persist/certificate/attributes/URIReference.java
-			// TODO: use that..  vs a string like the GeneralName above
-			 ASN1ObjectIdentifier oidTcgPlatformConfigURI = new ASN1ObjectIdentifier("2.23.133.5.1.3");
-			 acBldr.addAttribute(oidTcgPlatformConfigURI, new RoleSyntax(roleName));
+
+
+			// ASN1ObjectIdentifier PLATFORM_SERIAL = new
+			// ASN1ObjectIdentifier("2.23.133.2.17");
+			// ASN1EncodableVector vec = new ASN1EncodableVector();
+			// vec.add(new ASN1Integer(BigInteger.valueOf(1)));
+			// vec.add(new ASN1Integer(BigInteger.valueOf(1)));
+			// vec.add(new ASN1Integer(BigInteger.valueOf(1)));
+			// ASN1Sequence dssParams = new DERSequence(vec);
+			// acBldr.addAttribute(PLATFORM_SERIAL, dssParams);
+
+			// ASN1ObjectIdentifier PLATFORM_SERIAL = new
+			// ASN1ObjectIdentifier("2.23.133.2.23");
+			// ASN1EncodableVector vec = new ASN1EncodableVector();
+			// vec.add(new ASN1Integer(BigInteger.valueOf(1)));
+			// vec.add(new ASN1Integer(BigInteger.valueOf(1)));
+			// vec.add(new ASN1Integer(BigInteger.valueOf(1)));
+			// ASN1Sequence dssParams = new DERSequence(vec);
+			// acBldr.addAttribute(PLATFORM_SERIAL, dssParams);
 
 			// finally create the AC
 			X509AttributeCertificateHolder att = acBldr
@@ -108,7 +132,7 @@ public class TestApp {
 			try (FileOutputStream fos = new FileOutputStream("platform_cert.der")) {
 				fos.write(att.getEncoded());
 				fos.close();
-			 }	
+			}
 
 			//
 			// starting here, we parse the newly generated AC

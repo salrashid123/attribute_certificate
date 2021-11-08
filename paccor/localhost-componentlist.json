@@ -1,0 +1,49 @@
+{
+    
+    "PLATFORM": {
+        "PLATFORMMANUFACTURERSTR": "Not Specified","PLATFORMMODEL": "Not Specified","PLATFORMVERSION": "Not Specified"
+    },
+    "COMPONENTS": [
+        {
+             "COMPONENTCLASS": {
+        "COMPONENTCLASSREGISTRY": "2.23.133.18.3.1",
+        "COMPONENTCLASSVALUE": "00020001"
+    },"MANUFACTURER": "Not Specified","MODEL": "1"
+        },
+        {
+             "COMPONENTCLASS": {
+        "COMPONENTCLASSREGISTRY": "2.23.133.18.3.1",
+        "COMPONENTCLASSVALUE": "00030003"
+    },"MANUFACTURER": "Not Specified","MODEL": "Not Specified","FIELDREPLACEABLE": "false"
+        },
+        {
+             "COMPONENTCLASS": {
+        "COMPONENTCLASSREGISTRY": "2.23.133.18.3.1",
+        "COMPONENTCLASSVALUE": "00130003"
+    },"MANUFACTURER": "Not Specified","MODEL": "Not Specified"
+        },
+       {
+            "COMPONENTCLASS": {
+       "COMPONENTCLASSREGISTRY": "2.23.133.18.3.1",
+       "COMPONENTCLASSVALUE": "00010002"
+   },"MANUFACTURER": "Not Specified","MODEL": "1","FIELDREPLACEABLE": "true"
+       },
+       {
+            "COMPONENTCLASS": {
+       "COMPONENTCLASSREGISTRY": "2.23.133.18.3.1",
+       "COMPONENTCLASSVALUE": "00010002"
+   },"MANUFACTURER": "Not Specified","MODEL": "1","FIELDREPLACEABLE": "true"
+       }
+    ],
+    "PROPERTIES": [
+        {
+            "NAME": "uname -r",
+            "VALUE": "5.10.0-9-cloud-amd64"
+        },
+        {
+            "NAME": "OS Release",
+            "VALUE": "Debian GNU/Linux 11 (bullseye)"
+        }
+    ]
+}
+

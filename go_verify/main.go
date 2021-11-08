@@ -3,16 +3,19 @@ package main
 import (
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"os"
-	//"github.com/google/go-attestation/attributecert"
+
+	"github.com/google/go-attestation/attributecert"
 )
 
 const (
 	caCertFile = "../CA_crt.pem"
-	certFile   = "../platform_cert.pem"
+	ekCertFile = "../ekcert.pem"
+	certFile   = "../platform_cert.der"
 )
 
 func main() {
@@ -38,7 +41,7 @@ func main() {
 	}
 
 	fmt.Printf("CA Cert SubjectKeyId: %s\n", base64.RawStdEncoding.EncodeToString(cacert.SubjectKeyId))
-	certPEM, err := ioutil.ReadFile(certFile)
+	certDER, err := ioutil.ReadFile(certFile)
 	if err != nil {
 		fmt.Println("Failed to decode PEM data.")
 		os.Exit(1)
@@ -47,54 +50,55 @@ func main() {
 	// read attribute certificate using
 	// "github.com/google/go-attestation/attributecert"
 	//   requires DER format
-	// attributecert, err := attributecert.ParseAttributeCertificate(certDER)
+	// https://github.com/golang/go/issues/49270
+	// derRaw, err := ioutil.ReadFile(certFile)
 	// if err != nil {
-	// 	fmt.Println("failed to parse %s: %v", certFile, err)
+	// 	fmt.Printf("failed to parse %s: %v", certFile, err)
 	// 	os.Exit(1)
 	// }
 
-	// err = attributecert.CheckSignatureFrom(cacert)
+	// pcert, err := x509.ParseCertificate(derRaw)
 	// if err != nil {
-	// 	fmt.Println("failed to verify signature on %s: %v", certFile, err)
+	// 	fmt.Printf("failed to parse %s: %v", certFile, err)
+	// 	os.Exit(1)
 	// }
-	// fmt.Println("Cert Verified")
 
-	// read attribute certificate using crypto/509
+	// fmt.Printf("%v", pcert)
 
-	block, _ = pem.Decode(certPEM)
+	attributecert, err := attributecert.ParseAttributeCertificate(certDER)
+	if err != nil {
+		fmt.Printf("failed to parse %s: %v", certFile, err)
+		os.Exit(1)
+	}
+
+	err = attributecert.CheckSignatureFrom(cacert)
+	if err != nil {
+		fmt.Printf("failed to verify signature on %s: %v", certFile, err)
+		os.Exit(1)
+	}
+	fmt.Println("Cert Verified")
+
+	fmt.Printf("Holder SerialNumber %s\n", fmt.Sprintf("%x", attributecert.Holder.Serial))
+
+	er, _ := ioutil.ReadFile(ekCertFile)
+	var eblock *pem.Block
+	eblock, _ = pem.Decode(er)
 	if block == nil {
 		fmt.Println("Failed to decode PEM data.")
 		os.Exit(1)
 	}
 
-	if block.Type != "ATTRIBUTE CERTIFICATE" || len(block.Headers) != 0 {
+	if eblock.Type != "CERTIFICATE" || len(eblock.Headers) != 0 {
 		fmt.Println("Failed: Not a certificate.")
 		os.Exit(1)
 	}
 
-	cert, err := x509.ParseCertificate(block.Bytes)
+	ecert, err := x509.ParseCertificate(eblock.Bytes)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Cert AuthorityKeyId: %s\n", base64.RawStdEncoding.EncodeToString(cert.AuthorityKeyId))
+	fmt.Printf("EK Cert SerialNumber: %s\n", hex.EncodeToString(ecert.SerialNumber.Bytes()))
 
-	roots := x509.NewCertPool()
-	ok := roots.AppendCertsFromPEM([]byte(certPEM))
-	if !ok {
-		panic("failed to parse root certificate")
-	}
-
-	opts := x509.VerifyOptions{
-		Roots: roots,
-		//DNSName:       "server.esodemoapp2.com",
-		Intermediates: x509.NewCertPool(),
-	}
-
-	if _, err := cert.Verify(opts); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	fmt.Println("Cert Verified")
 }
