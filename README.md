@@ -108,6 +108,7 @@ export PATH=$PATH:/usr/local/go/bin
 # install paccor
 # paccor uses an old version of tpm2_tools
 # if you want to paccor automatic scripts, checkout the 3.2.0 release of tpm2_tools
+# https://github.com/nsacyber/paccor/issues/106
 cd
 git clone https://github.com/nsacyber/paccor.git
 cd paccor
@@ -134,16 +135,16 @@ openssl x509 -in ekcert.pem -text
 
 # openssl x509 -in ekcert.der -inform DER -outform PEM -out ekcert.pem
 openssl x509 -in ekcert.pem -text
-Certificate:
-    Data:
-        Version: 3 (0x2)
-        Serial Number:
-            01:43:f2:f9:3e:d0:12:42:d6:86:88:fb:48:ba:7c:b9:9e:dd:50
-        Signature Algorithm: sha256WithRSAEncryption
-        Issuer: C = US, ST = California, L = Mountain View, O = Google LLC, OU = Cloud, CN = "tpm_ek_v1_cloud_host-signer-0-2021-10-12T04:22:11-07:00 K:1, 3:nbvaGZFLcuc:0:18"
-        Validity
-            Not Before: Nov  7 22:15:15 2021 GMT
-            Not After : Oct 31 22:20:15 2051 GMT
+    Certificate:
+        Data:
+            Version: 3 (0x2)
+            Serial Number:
+                01:b0:01:fe:40:bf:96:77:47:51:a7:2e:9f:5d:e5:33:3d:6b:62
+            Signature Algorithm: sha256WithRSAEncryption
+            Issuer: C = US, ST = California, L = Mountain View, O = Google LLC, OU = Cloud, CN = "tpm_ek_v1_cloud_host-signer-0-2021-10-12T04:22:11-07:00 K:1, 3:nbvaGZFLcuc:0:18"
+            Validity
+                Not Before: Sep 11 13:11:28 2022 GMT
+                Not After : Sep  3 13:16:28 2052 GMT
 ```
 
 Use paccor to issue a certificate.
@@ -162,7 +163,7 @@ Now finally, issue the platform certificate:
 /root/paccor/build/install/paccor/bin/signer --extensionsJsonFile paccor/extentions.json   \
   --componentJsonFile paccor/localhost-componentlist.json --policyRefJsonFile paccor/localhost-policyreference.json \
   --serialNumber 1919 --publicKeyCert CA_crt.pem  --privateKeyFile  CA_key.pem \
-  --holderCertFile ekcert.pem --dateNotBefore 20211106 --dateNotAfter 20211206 \
+  --holderCertFile ekcert.pem --dateNotBefore 20211106 --dateNotAfter 20251206 \
   --file platform_cert.der
 ```
 
@@ -174,19 +175,21 @@ Note that the platform certificate has an attribute which describes the serial n
 ```
 cd go_verify
 go run main.go 
-  CA Cert SubjectKeyId: v+Ec8CJIj/w7z13Z7a6IcCHf3YY
-  Cert Verified
-  Holder SerialNumber 143f2f93ed01242d68688fb48ba7cb99edd50
-  EK Cert SerialNumber: 0143f2f93ed01242d68688fb48ba7cb99edd50
+    CA Cert SubjectKeyId: t7qwAqHnvjTGwQVcZnjlu1NdoVQ
+    Cert Verified
+    Holder SerialNumber 1b001fe40bf96774751a72e9f5de5333d6b62
+    EK Cert SerialNumber: 01b001fe40bf96774751a72e9f5de5333d6b62
 ```
 
 ```
 openssl x509 -in ekcert.pem -text
-Certificate:
-    Data:
-        Version: 3 (0x2)
-        Serial Number:
-            01:43:f2:f9:3e:d0:12:42:d6:86:88:fb:48:ba:7c:b9:9e:dd:50
+    Certificate:
+        Data:
+            Version: 3 (0x2)
+            Serial Number:
+                01:b0:01:fe:40:bf:96:77:47:51:a7:2e:9f:5d:e5:33:3d:6b:62
+            Signature Algorithm: sha256WithRSAEncryption
+            Issuer: C = US, ST = California, L = Mountain View, O = Google LLC, OU = Cloud, CN = "tpm_ek_v1_cloud_host-signer-0-2021-10-12T04:22:11-07:00 K:1, 3:nbvaGZFLcuc:0:18"
 ```
 
 I should point out that attribute certs with openssl is still pending [OpenSSL issues/14648](https://github.com/openssl/openssl/issues/14648).
